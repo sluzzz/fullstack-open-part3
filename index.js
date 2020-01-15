@@ -1,7 +1,10 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 
-const persons = [
+app.use(bodyParser.json());
+
+let persons = [
   {
     name: 'Arto Hellas',
     number: '040-123456',
@@ -47,6 +50,38 @@ app.get('/api/persons/:id', (req, res) => {
   } else {
     res.status(404).end();
   }
+});
+
+app.delete('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id);
+  persons = persons.filter(person => person.id !== id);
+
+  response.status(204).end();
+});
+
+const generateID = () => {
+  return Math.floor(Math.random() * 10000000000);
+};
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body;
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: 'content missing'
+    });
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: generateID()
+  };
+
+  console.log(person);
+
+  persons = persons.concat(person);
+
+  response.json(body);
 });
 
 const PORT = 3001;
