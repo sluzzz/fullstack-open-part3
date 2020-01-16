@@ -1,8 +1,23 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
 app.use(bodyParser.json());
+app.use(
+  morgan(function(tokens, req, res) {
+    return [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, 'content-length'),
+      '-',
+      tokens['response-time'](req, res),
+      'ms',
+      JSON.stringify(req.body)
+    ].join(' ');
+  })
+);
 
 let persons = [
   {
@@ -69,6 +84,14 @@ app.post('/api/persons', (request, response) => {
     return response.status(400).json({
       error: 'content missing'
     });
+  } else if (
+    persons.find(
+      person => person.name.toLowerCase() === body.name.toLowerCase()
+    )
+  ) {
+    return response.status(400).json({
+      error: 'name must be unique'
+    });
   }
 
   const person = {
@@ -76,8 +99,6 @@ app.post('/api/persons', (request, response) => {
     number: body.number,
     id: generateID()
   };
-
-  console.log(person);
 
   persons = persons.concat(person);
 
