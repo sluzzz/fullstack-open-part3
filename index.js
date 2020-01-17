@@ -45,7 +45,7 @@ let persons = [
 ];
 
 app.get('/', (req, res) => {
-  res.send('<h1>test</h1>');
+  res.send('<h1>PHONEBOOK</h1>');
 });
 
 // todo fix template literals
