@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
+const Person = require('./models/person');
 
 app.use(express.static('build'));
 app.use(cors());
@@ -22,28 +24,28 @@ app.use(
   })
 );
 
-let persons = [
-  {
-    name: 'Arto Hellas',
-    number: '040-123456',
-    id: 1
-  },
-  {
-    name: 'Ada Lovelace',
-    number: '39-44-5323523',
-    id: 2
-  },
-  {
-    name: 'Dan Abramov',
-    number: '12-43-234345',
-    id: 3
-  },
-  {
-    name: 'Mary Poppendieck',
-    number: '39-23-6423122',
-    id: 4
-  }
-];
+// let persons = [
+//   {
+//     name: 'Arto Hellas',
+//     number: '040-123456',
+//     id: 1
+//   },
+//   {
+//     name: 'Ada Lovelace',
+//     number: '39-44-5323523',
+//     id: 2
+//   },
+//   {
+//     name: 'Dan Abramov',
+//     number: '12-43-234345',
+//     id: 3
+//   },
+//   {
+//     name: 'Mary Poppendieck',
+//     number: '39-23-6423122',
+//     id: 4
+//   }
+// ];
 
 app.get('/', (req, res) => {
   res.send('<h1>PHONEBOOK</h1>');
@@ -51,23 +53,31 @@ app.get('/', (req, res) => {
 
 // todo fix template literals
 app.get('/info', (req, res) => {
-  res.send(`Phonebook has info for ${[persons.length]} people
-  ${new Date()}`);
+  // res.send(`Phonebook has info for ${[persons.length]} people
+  // ${new Date()}`);
 });
 
 app.get('/api/persons', (req, res) => {
-  res.json(persons);
+  // res.json(persons);
+  Person.find({}).then(persons => {
+    res.json(persons);
+  });
 });
 
-app.get('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find(person => person.id === id);
+// app.get('/api/persons/:id', (req, res) => {
+//   const id = Number(req.params.id);
+//   const person = persons.find(person => person.id === id);
+//   if (person) {
+//     res.json(person);
+//   } else {
+//     res.status(404).end();
+//   }
+// });
 
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).end();
-  }
+app.get('/api/persons/:id', (req, res) => {
+  Person.findById(req.params.id).then(note => {
+    res.json(note.toJSON());
+  });
 });
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -108,7 +118,7 @@ app.post('/api/persons', (request, response) => {
   response.json(body);
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
