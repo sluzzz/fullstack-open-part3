@@ -87,35 +87,47 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end();
 });
 
-const generateID = () => {
-  return Math.floor(Math.random() * 10000000000);
-};
+// const generateID = () => {
+//   return Math.floor(Math.random() * 10000000000);
+// };
 
 app.post('/api/persons', (request, response) => {
   const body = request.body;
-  if (!body.name || !body.number) {
-    return response.status(400).json({
-      error: 'content missing'
-    });
-  } else if (
-    persons.find(
-      person => person.name.toLowerCase() === body.name.toLowerCase()
-    )
-  ) {
-    return response.status(400).json({
-      error: 'name must be unique'
-    });
+  // if (!body.name || !body.number) {
+  //   return response.status(400).json({
+  //     error: 'content missing'
+  //   });
+  // } else if (
+  //   persons.find(
+  //     person => person.name.toLowerCase() === body.name.toLowerCase()
+  //   )
+  // ) {
+  //   return response.status(400).json({
+  //     error: 'name must be unique'
+  //   });
+  // }
+
+  // const person = {
+  //   name: body.name,
+  //   number: body.number,
+  //   id: generateID()
+  // };
+
+  // persons = persons.concat(person);
+
+  // response.json(body);
+
+  if (body.name === undefined) {
+    return response.status(400).json({ error: 'name missing' });
   }
-
-  const person = {
+  const person = new Person({
     name: body.name,
-    number: body.number,
-    id: generateID()
-  };
+    number: body.number
+  });
 
-  persons = persons.concat(person);
-
-  response.json(body);
+  person.save().then(savedPerson => {
+    response.json(savedPerson.toJSON());
+  });
 });
 
 const PORT = process.env.PORT;
